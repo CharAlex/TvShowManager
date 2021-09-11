@@ -1,0 +1,5 @@
+mutation CreateMovie($input: CreateMovieInput!) {
+    createMovie(input:$input) {
+        clientMutationId
+    }
+}

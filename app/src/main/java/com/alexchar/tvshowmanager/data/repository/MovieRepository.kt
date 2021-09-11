@@ -36,10 +36,10 @@ class MovieRepository @Inject constructor(
         val response =  movieRemoteSource.createMovie(movie)
 
         return when {
-            response.data != null -> {
+            response?.data != null -> {
                 ViewState.success(Unit)
             }
-            response.errors?.isNotEmpty() == true -> {
+            response?.errors?.isNotEmpty() == true -> {
                 response.errors?.toString()?.let { ViewState.error(it) } ?: ViewState.error("Something went wrong")
             }
             else -> {

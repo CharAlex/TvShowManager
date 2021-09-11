@@ -13,4 +13,7 @@ interface UseCaseModule {
 
     @get:Binds
     val SyncMoviesUseCase.iSyncMoviesUseCase: ISyncMoviesUseCase
+
+    @get:Binds
+    val CreateMovieUseCase.iCreateMovieUseCase: ICreateMovieUseCase
 }

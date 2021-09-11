@@ -6,6 +6,7 @@ import com.alexchar.tvshowmanager.MovieListQuery
 import com.alexchar.tvshowmanager.data.remote.movie.IMovieRemoteSource
 import com.alexchar.tvshowmanager.domain.movie.IMovieRepository
 import com.alexchar.tvshowmanager.domain.movie.model.Movie
+import com.alexchar.tvshowmanager.domain.util.Constants
 import com.alexchar.tvshowmanager.domain.util.ViewState
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -23,10 +24,27 @@ class MovieRepository @Inject constructor(
         val movieEntities = response.data?.movies?.edges?.mapNotNull {
             it?.node?.toEntity()
         }
+
         if (movieEntities != null) {
             return movieLocalSource.insertAll(movieEntities)
         }
 
-        return ViewState.Error("Insertion fail")
+        return ViewState.Error(Constants.INSERTION_FAIL_CODE)
+    }
+
+    override suspend fun createMovie(movie: MovieListQuery.Node): ViewState<Unit> {
+        val response =  movieRemoteSource.createMovie(movie)
+
+        return when {
+            response.data != null -> {
+                ViewState.success(Unit)
+            }
+            response.errors?.isNotEmpty() == true -> {
+                response.errors?.toString()?.let { ViewState.error(it) } ?: ViewState.error("Something went wrong")
+            }
+            else -> {
+                ViewState.error(Constants.CREATE_MOVIE_ERROR_CODE)
+            }
+        }
     }
 }

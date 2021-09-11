@@ -11,4 +11,6 @@ interface IMovieRepository {
     suspend fun syncMovies(
         first: Int, after: Int
     ): ViewState<Unit>
+
+    suspend fun createMovie(movie: MovieListQuery.Node): ViewState<Unit>
 }

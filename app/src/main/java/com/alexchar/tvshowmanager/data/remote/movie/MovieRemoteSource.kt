@@ -18,8 +18,21 @@ class MovieRemoteSource @Inject constructor(
     override suspend fun queryMovieList(first: Int, skip: Int): Response<MovieListQuery.Data> {
         return apolloClient.query(MovieListQuery(first, skip, Input.fromNullable(listOf(MovieOrder.CREATEDAT_DESC)))).await()
     }
+
+    override suspend fun createMovie(movie: MovieListQuery.Node): Response<CreateMovieMutation.Data>  {
+        return apolloClient.mutate(CreateMovieMutation(
+            input = CreateMovieInput(
+                fields = Input.fromNullable(CreateMovieFieldsInput(
+                    title = movie.title,
+                    releaseDate = Input.fromNullable(movie.releaseDate),
+                    seasons = Input.fromNullable(movie.seasons)
+                ))
+            )
+        )).await()
+    }
 }
 
 interface IMovieRemoteSource {
     suspend fun queryMovieList(first: Int, skip: Int): Response<MovieListQuery.Data>
+    suspend fun createMovie(movie: MovieListQuery.Node): Response<CreateMovieMutation.Data>
 }

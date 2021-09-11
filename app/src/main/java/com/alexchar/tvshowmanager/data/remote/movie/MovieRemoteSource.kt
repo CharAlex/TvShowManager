@@ -10,6 +10,8 @@ import com.apollographql.apollo.ApolloClient
 import com.apollographql.apollo.api.Input
 import com.apollographql.apollo.api.Response
 import com.apollographql.apollo.coroutines.await
+import com.apollographql.apollo.exception.ApolloException
+import timber.log.Timber
 import javax.inject.Inject
 
 class MovieRemoteSource @Inject constructor(
@@ -19,20 +21,25 @@ class MovieRemoteSource @Inject constructor(
         return apolloClient.query(MovieListQuery(first, skip, Input.fromNullable(listOf(MovieOrder.CREATEDAT_DESC)))).await()
     }
 
-    override suspend fun createMovie(movie: MovieListQuery.Node): Response<CreateMovieMutation.Data>  {
-        return apolloClient.mutate(CreateMovieMutation(
-            input = CreateMovieInput(
-                fields = Input.fromNullable(CreateMovieFieldsInput(
-                    title = movie.title,
-                    releaseDate = Input.fromNullable(movie.releaseDate),
-                    seasons = Input.fromNullable(movie.seasons)
-                ))
-            )
-        )).await()
+    override suspend fun createMovie(movie: MovieListQuery.Node): Response<CreateMovieMutation.Data>?  {
+        return try {
+            apolloClient.mutate(CreateMovieMutation(
+                input = CreateMovieInput(
+                    fields = Input.fromNullable(CreateMovieFieldsInput(
+                        title = movie.title,
+                        releaseDate = Input.fromNullable(movie.releaseDate),
+                        seasons = Input.fromNullable(movie.seasons)
+                    ))
+                )
+            )).await()
+        } catch (e: ApolloException) {
+            Timber.d(e)
+            null
+        }
     }
 }
 
 interface IMovieRemoteSource {
     suspend fun queryMovieList(first: Int, skip: Int): Response<MovieListQuery.Data>
-    suspend fun createMovie(movie: MovieListQuery.Node): Response<CreateMovieMutation.Data>
+    suspend fun createMovie(movie: MovieListQuery.Node): Response<CreateMovieMutation.Data>?
 }

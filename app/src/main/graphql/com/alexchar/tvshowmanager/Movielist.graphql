@@ -1,0 +1,16 @@
+query MovieList($first: Int!, $skip: Int!, $order: [MovieOrder!]) {
+    movies(first: $first, skip: $skip, order: $order) {
+        pageInfo {
+            hasNextPage
+            hasPreviousPage
+        }
+        edges {
+            node {
+                title
+                releaseDate
+                seasons
+                createdAt
+            }
+        }
+    }
+}
